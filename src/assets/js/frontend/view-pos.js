@@ -95,19 +95,22 @@
         var p = state.pmap[l.productId] || {};
         var thumb = U.safeImgSrc(p.image && p.image.thumb);
         var f = l.unitFactor || 1;
-        var stockTxt = f > 1 ? U.qty(Math.floor(stock(l.productId) / f)) + " " + h(l.unitName || "")
-                             : U.qty(stock(l.productId)) + " " + h(p.unit || "");
+        // The name row already carries the billed unit ("· bottle"), so repeating it
+        // after the stock count pushed the meta onto a second line and made every
+        // line taller. Base-unit lines name no unit up there, so they keep it here.
+        var unitWord = l.unitName ? "" : (p.unit || "");
+        var stockTxt = U.qty(f > 1 ? Math.floor(stock(l.productId) / f) : stock(l.productId)) + (unitWord ? " " + h(unitWord) : "");
         return '<div class="cart-line" data-i="' + i + '">' +
-          '<div class="cl-info">' +
-            (thumb ? '<img class="cl-thumb" src="' + thumb + '" alt="">' : "") +
-            '<div class="cl-text">' +
+          (thumb ? '<img class="cl-thumb" src="' + thumb + '" alt="">' : "") +
+          '<div class="cl-text">' +
             '<div class="cl-name">' + h(p.name || "Item") + (l.unitName ? ' <span class="small muted">· ' + h(l.unitName) + "</span>" : "") + "</div>" +
-            '<div class="cl-meta">' + U.money(l.price) + " · stock " + stockTxt + "</div>" +
-            '<div class="cl-ctl">' +
-              '<button class="icon-btn" data-dec="' + i + '" aria-label="Reduce quantity">' + ico("minus") + "</button>" +
-              '<input class="input qty-input" type="number" step="' + (f > 1 ? 1 : 0.001) + '" min="0" data-qty="' + i + '" value="' + l.qty + '">' +
-              '<button class="icon-btn" data-inc="' + i + '" aria-label="Increase quantity">' + ico("plus") + "</button>" +
-            "</div>" +
+            '<div class="cl-row">' +
+              '<div class="cl-meta">' + U.money(l.price) + " · stock " + stockTxt + "</div>" +
+              '<div class="cl-ctl">' +
+                '<button class="icon-btn" data-dec="' + i + '" aria-label="Reduce quantity">' + ico("minus") + "</button>" +
+                '<input class="input qty-input" type="number" step="' + (f > 1 ? 1 : 0.001) + '" min="0" data-qty="' + i + '" value="' + l.qty + '">' +
+                '<button class="icon-btn" data-inc="' + i + '" aria-label="Increase quantity">' + ico("plus") + "</button>" +
+              "</div>" +
             "</div>" +
           "</div>" +
           '<div class="cl-right">' +
@@ -133,12 +136,14 @@
               '<div class="field"><label>Tax %</label><input class="input" type="number" step="0.01" min="0" name="taxRate" value="' + (m.taxRate || 0) + '"></div>' +
             "</div>" +
             '<div class="mt-sm">' +
-              '<div class="sum-line"><span class="muted">Subtotal</span><span>' + U.money(t.sub) + "</span></div>" +
-              '<div class="sum-line"><span class="muted">Discount</span><span>− ' + U.money(t.disc) + "</span></div>" +
-              '<div class="sum-line"><span class="muted">Tax (' + t.taxRate + "%)</span><span>" + U.money(t.tax) + "</span></div>" +
-              '<div class="sum-line total"><span>Total</span><span>' + U.money(t.total) + "</span></div>" +
+              '<div class="sum-strip">' +
+                '<span>Subtotal <b id="sum-sub">' + U.money(t.sub) + "</b></span>" +
+                '<span>Disc <b id="sum-disc">− ' + U.money(t.disc) + "</b></span>" +
+                '<span id="sum-tax-label">Tax (' + t.taxRate + '%) <b id="sum-tax">' + U.money(t.tax) + "</b></span>" +
+              "</div>" +
+              '<div class="sum-line total"><span>Total</span><span id="sum-total">' + U.money(t.total) + "</span></div>" +
             "</div>" +
-            '<div class="field mt-sm"><label>Payment</label><div class="row" style="gap:6px" id="pay-chips">' +
+            '<div class="pay-row"><label>Payment</label><div class="row" id="pay-chips">' +
               PAYMENTS.map(function (pm) { return '<button type="button" class="chip' + (m.paymentMethod === pm ? " active" : "") + '" data-pay="' + h(pm) + '">' + h(pm) + "</button>"; }).join("") +
             "</div></div>" +
             '<div id="pos-credit-warn"></div>' +
@@ -186,15 +191,19 @@
 
     function updateTotalsOnly() {
       var t = cartTotals();
-      var foot = $("#pos-cart .cart-foot", el); if (!foot) return;
-      var lines = foot.querySelectorAll(".sum-line");
-      if (lines.length >= 4) {
-        lines[0].lastChild.textContent = U.money(t.sub);
-        lines[1].lastChild.textContent = "− " + U.money(t.disc);
-        lines[2].firstChild.textContent = "Tax (" + t.taxRate + "%)";
-        lines[2].lastChild.textContent = U.money(t.tax);
-        lines[3].lastChild.textContent = U.money(t.total);
-      }
+      var set = function (id, txt) { var n = $("#" + id, el); if (n) n.textContent = txt; };
+      set("sum-sub", U.money(t.sub));
+      set("sum-disc", "− " + U.money(t.disc));
+      set("sum-tax", U.money(t.tax));
+      set("sum-total", U.money(t.total));
+      var lab = $("#sum-tax-label", el);
+      if (lab) lab.firstChild.textContent = "Tax (" + t.taxRate + "%) ";
+      // The top bar carries the amount the counter says out loud, so it has to move
+      // with a discount or a tax edit — repainting only the foot left it on the
+      // pre-discount total until something else redrew the cart.
+      set("ptb-total", U.money(t.total));
+      var pp = $("#ptb-pay", el);
+      if (pp) pp.textContent = state.cart.length ? ("Pay " + U.money(t.total)) : "Pay";
     }
 
     _paintCart = paintCart;

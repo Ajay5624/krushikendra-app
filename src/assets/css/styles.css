@@ -410,7 +410,7 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 @keyframes slide { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
 
 /* POS layout */
-.pos { display: grid; grid-template-columns: 1fr 360px; gap: 12px; align-items: start; }
+.pos { display: grid; grid-template-columns: 1fr clamp(360px, 30vw, 420px); gap: 12px; align-items: start; }
 .pos-catalog { max-height: calc(100vh - 90px); overflow-y: auto; padding-top: 0; }
 .pos-topbar {
   position: sticky; top: 0; z-index: 6;
@@ -426,7 +426,7 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .chip { padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--panel); cursor: pointer; font-size: 13px; font-weight: 650; color: var(--text-soft); min-height: 34px; }
 .chip.active { background: var(--brand); border-color: var(--brand); color: #fff; }
 .prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; }
-.prod-card { border: 1px solid var(--border); border-radius: 10px; padding: 10px; cursor: pointer; background: var(--panel); box-shadow: var(--shadow); content-visibility: auto; contain-intrinsic-size: auto 236px; transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out); }
+.prod-card { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; padding: 10px; cursor: pointer; background: var(--panel); box-shadow: var(--shadow); content-visibility: auto; contain-intrinsic-size: auto 200px; transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out); }
 /* The lift is a mouse affordance. On touch, :hover sticks after a tap, so a
    finger would leave tiles raised and shadowed until the next tap elsewhere. */
 @media (hover: hover) and (pointer: fine) {
@@ -436,7 +436,10 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .prod-card.out { opacity: .55; cursor: not-allowed; box-shadow: none; }
 .prod-card .p-name { font-weight: 650; font-size: 13px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .prod-card .p-meta { font-size: 10.5px; color: var(--text-mute); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.prod-card .p-bot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+/* Price and stock pinned to the foot of the card: a tile with a photo and one
+   without share a row, and the two heights only look deliberate if the money
+   line lands at the same y across the row. */
+.prod-card .p-bot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px; }
 .prod-card .p-price { font-family: var(--font-num); font-weight: 700; font-size: 15.5px; color: var(--brand-dark); font-variant-numeric: tabular-nums; }
 
 /* =========================================================
@@ -567,6 +570,9 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
    fitted on the tablet at once. Where there is no picture there is nothing to
    frame — the name, category band, price and stock carry the tile. */
 .pos-catalog .pcard-thumb.none { display: none; }
+/* A 1:1 photo made every card ~300px tall, so the shelf showed six products at
+   the counter. A wide crop keeps the pack recognisable and gives back two rows. */
+.pos-catalog .pcard-thumb { aspect-ratio: 16 / 7; height: auto; margin-bottom: 7px; }
 .icon-btn .ico { width: 16px; height: 16px; }
 .icon-btn .chev { transition: transform var(--dur-1) var(--ease-out); }
 .icon-btn .chev.open { transform: rotate(90deg); }
@@ -585,28 +591,41 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .img-lightbox img { max-width: 100%; max-height: 70vh; border-radius: var(--radius-sm); }
 
 .cart { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); position: sticky; top: 66px; display: flex; flex-direction: column; max-height: calc(100vh - 90px); }
-.cart-head { padding: 11px 13px; border-bottom: 1px solid var(--border); font-weight: 650; display: flex; justify-content: space-between; align-items: center; }
-.cart-items { overflow-y: auto; flex: 1; padding: 5px 7px; }
-.cart-line { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 8px; border-bottom: 1px dashed var(--border); }
+.cart-head { padding: 9px 13px; border-bottom: 1px solid var(--border); font-weight: 650; display: flex; justify-content: space-between; align-items: center; }
+.cart-items { overflow-y: auto; flex: 1; padding: 3px 7px; }
+.cart-line { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-bottom: 1px dashed var(--border); }
 .cart-line:last-child { border-bottom: 0; }
 /* A pack photo in the line is what confirms you billed the right one when a
-   brand ships several look-alike bags. Small and top-aligned so it lines up with
-   the name without making the line taller — the cart panel is the tightest
-   surface on the screen. No photo on file, no box reserved for one. */
-.cart-line .cl-info { display: flex; gap: 8px; align-items: flex-start; min-width: 0; }
+   brand ships several look-alike bags. Kept at the size of the text block so it
+   never adds height — the cart panel is the tightest surface on the screen.
+   No photo on file, no box reserved for one. */
+.cart-line .cl-thumb { width: 34px; height: 34px; flex: 0 0 auto; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); background: var(--panel-2); }
 .cart-line .cl-text { flex: 1; min-width: 0; }
-.cart-line .cl-thumb { width: 38px; height: 38px; flex: 0 0 auto; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); background: var(--panel-2); }
 .cart-line .cl-name { font-weight: 650; font-size: 13px; }
 .cart-line .cl-meta { font-size: 11.5px; color: var(--text-mute); }
-.cart-line .cl-ctl { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
-.cart-line .cl-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 5px; }
-.qty-input { width: 64px; min-height: 36px; text-align: center; padding: 5px; font-family: var(--font-num); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+/* The stepper used to sit on a third row of its own, which made every line 102px
+   tall and left room for one item in the panel. Price/stock and the +/- controls
+   share a row now: the line is the height of one tap target, not three. */
+.cart-line .cl-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 3px; }
+.cart-line .cl-ctl { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+.cart-line .cl-right { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 2px; }
+.qty-input { width: 60px; min-height: 36px; text-align: center; padding: 5px; font-family: var(--font-num); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .cart-line .cl-total { font-family: var(--font-num); font-weight: 700; font-size: 14.5px; font-variant-numeric: tabular-nums; text-align: right; }
-.cart-foot { border-top: 1px solid var(--border); padding: 11px 13px; background: var(--panel-2); border-radius: 0 0 var(--radius) var(--radius); }
+.cart-foot { border-top: 1px solid var(--border); padding: 10px 13px; background: var(--panel-2); border-radius: 0 0 var(--radius) var(--radius); }
 .sum-line { display: flex; justify-content: space-between; padding: 2px 0; font-size: 12px; }
-.sum-line.total { font-size: 16px; font-weight: 750; border-top: 1px solid var(--border-strong); margin-top: 6px; padding-top: 8px; }
+/* Subtotal / Discount / Tax are read only when something looks wrong, so they no
+   longer each take a full row above the Total. */
+.sum-strip { display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; color: var(--text-mute); }
+.sum-strip b { font-family: var(--font-num); font-weight: 700; color: var(--text-soft); font-variant-numeric: tabular-nums; }
+.sum-line.total { font-size: 16px; font-weight: 750; border-top: 1px solid var(--border-strong); margin-top: 4px; padding-top: 6px; }
+/* Label above, chips across the full width: with the label beside them the row is
+   too narrow for all six and "Cheque" ends up orphaned on a line of its own. */
+.pay-row { display: flex; flex-direction: column; align-items: stretch; gap: 5px; margin-top: 8px; }
+.pay-row > label { font-size: 12px; font-weight: 600; color: var(--text-soft); }
+.pay-row .row { gap: 5px; justify-content: space-between; }
+.pay-row .chip { padding: 7px 9px; font-size: 12.5px; }
 .btn-pay { min-height: 46px; padding: 11px 15px; font-size: 15px; font-weight: 750; }
-.cart-empty { padding: 28px 14px; text-align: center; color: var(--text-mute); }
+.cart-empty { padding: 22px 14px; text-align: center; color: var(--text-mute); }
 
 /* Charts (dependency-free bars) */
 .bars { display: flex; align-items: flex-end; gap: 8px; height: 160px; padding-top: 10px; }
@@ -792,6 +811,13 @@ table.pdf tr.tot td { font-weight: 800; background: var(--panel-2); border-top: 
 @media (pointer: coarse) {
   .btn, .input, .select, .textarea, .search input, .icon-btn, .nav-item, .tab { min-height: 44px; }
   .icon-btn { min-width: 44px; }
+  /* Short labels ("Del", "View", "UPI") leave a control narrower than the finger
+     rule it asks for; the width has to meet 44 too, not just the height. */
+  .btn, .cchip, .chip, .link-btn { min-width: 44px; }
+  /* A product name in a ledger row is a link, but the text is 16px tall while the
+     row is 56. Padding with an equal negative margin gives the finger the row
+     without moving a single glyph or changing the table's rhythm. */
+  table.data a { display: inline-block; padding: 14px 0; margin: -14px 0; }
   .input, .select, .textarea, .search input { font-size: 16px; }
   .cchip, .chip { min-height: 44px; }
   .pf-check .checkbox { min-height: 44px; }
