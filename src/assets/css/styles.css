@@ -759,6 +759,11 @@ table.pdf tr.tot td { font-weight: 800; background: var(--panel-2); border-top: 
 @media (max-width: 1080px) {
   .pos { grid-template-columns: 1fr; }
   .cart { position: static; max-height: none; }
+  /* Stacked, an uncapped shelf is 1074px tall and pushes the cart 1161px down —
+     past the fold of a portrait Pad, so billing meant scrolling past every
+     product first. The shelf scrolls inside its own card and the cart stays
+     within reach. */
+  .pos-catalog { max-height: 52vh; }
   .grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 760px) {
