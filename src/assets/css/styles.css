@@ -589,6 +589,13 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .cart-items { overflow-y: auto; flex: 1; padding: 5px 7px; }
 .cart-line { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 8px; border-bottom: 1px dashed var(--border); }
 .cart-line:last-child { border-bottom: 0; }
+/* A pack photo in the line is what confirms you billed the right one when a
+   brand ships several look-alike bags. Small and top-aligned so it lines up with
+   the name without making the line taller — the cart panel is the tightest
+   surface on the screen. No photo on file, no box reserved for one. */
+.cart-line .cl-info { display: flex; gap: 8px; align-items: flex-start; min-width: 0; }
+.cart-line .cl-text { flex: 1; min-width: 0; }
+.cart-line .cl-thumb { width: 38px; height: 38px; flex: 0 0 auto; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); background: var(--panel-2); }
 .cart-line .cl-name { font-weight: 650; font-size: 13px; }
 .cart-line .cl-meta { font-size: 11.5px; color: var(--text-mute); }
 .cart-line .cl-ctl { display: flex; align-items: center; gap: 6px; margin-top: 6px; }

@@ -93,17 +93,21 @@
       var pp = $("#ptb-pay", el); if (pp) { pp.disabled = !state.cart.length; pp.textContent = state.cart.length ? ("Pay " + U.money(t.total)) : "Pay"; }
       var lines = state.cart.length ? state.cart.map(function (l, i) {
         var p = state.pmap[l.productId] || {};
+        var thumb = U.safeImgSrc(p.image && p.image.thumb);
         var f = l.unitFactor || 1;
         var stockTxt = f > 1 ? U.qty(Math.floor(stock(l.productId) / f)) + " " + h(l.unitName || "")
                              : U.qty(stock(l.productId)) + " " + h(p.unit || "");
         return '<div class="cart-line" data-i="' + i + '">' +
           '<div class="cl-info">' +
+            (thumb ? '<img class="cl-thumb" src="' + thumb + '" alt="">' : "") +
+            '<div class="cl-text">' +
             '<div class="cl-name">' + h(p.name || "Item") + (l.unitName ? ' <span class="small muted">· ' + h(l.unitName) + "</span>" : "") + "</div>" +
             '<div class="cl-meta">' + U.money(l.price) + " · stock " + stockTxt + "</div>" +
             '<div class="cl-ctl">' +
               '<button class="icon-btn" data-dec="' + i + '" aria-label="Reduce quantity">' + ico("minus") + "</button>" +
               '<input class="input qty-input" type="number" step="' + (f > 1 ? 1 : 0.001) + '" min="0" data-qty="' + i + '" value="' + l.qty + '">' +
               '<button class="icon-btn" data-inc="' + i + '" aria-label="Increase quantity">' + ico("plus") + "</button>" +
+            "</div>" +
             "</div>" +
           "</div>" +
           '<div class="cl-right">' +
