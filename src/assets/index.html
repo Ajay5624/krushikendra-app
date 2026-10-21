@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Fertilizer Shop Inventory</title>
+  <link rel="icon" type="image/x-icon" href="assets/app.ico" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+  <link rel="stylesheet" href="css/fonts.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>try { var t = localStorage.getItem("fs_theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}</script>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="26" height="26"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"><path d="M32 47V27"/><path d="M19 47q13-6 26 0"/></g><path fill="currentColor" d="M32 32c-9 0-15-6-15-14 9 0 15 6 15 14Z"/><path fill="currentColor" d="M32 27c0-8 6-14 15-14 0 8-6 14-15 14Z"/></svg>
+        </div>
+        <div class="brand-text">
+          <strong id="brand-name">Agro Depot</strong>
+          <span>Inventory Manager</span>
+        </div>
+      </div>
+      <nav class="nav" id="nav">
+        <button class="nav-item active" data-view="dashboard"><i class="ico" data-ico="grid"></i> Dashboard</button>
+        <div class="nav-group">Sell</div>
+        <button class="nav-item" data-view="pos"><i class="ico" data-ico="sale"></i> Point of Sale</button>
+        <button class="nav-item" data-view="sales"><i class="ico" data-ico="cart"></i> Sales History</button>
+        <button class="nav-item" data-view="customers"><i class="ico" data-ico="users"></i> Customers</button>
+        <button class="nav-item" data-view="credit"><i class="ico" data-ico="card"></i> Credit Book</button>
+        <div class="nav-group">Stock</div>
+        <button class="nav-item" data-view="products"><i class="ico" data-ico="box"></i> Products</button>
+        <button class="nav-item" data-view="stockhist"><i class="ico" data-ico="clock"></i> Stock History</button>
+        <div class="nav-group">Buy</div>
+        <button class="nav-item" data-view="purchases"><i class="ico" data-ico="truck"></i> Purchases</button>
+        <button class="nav-item" data-view="payables"><i class="ico" data-ico="cash"></i> Payables</button>
+        <button class="nav-item" data-view="suppliers"><i class="ico" data-ico="factory"></i> Suppliers</button>
+        <div class="nav-group">Insight</div>
+        <button class="nav-item" data-view="reports"><i class="ico" data-ico="chart"></i> Reports</button>
+        <div class="nav-group">System</div>
+        <button class="nav-item" data-view="settings"><i class="ico" data-ico="gear"></i> Settings</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="offline-badge" title="All data is stored locally on this computer">
+          <span class="dot"></span> Offline &middot; Local data
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-toggle" id="menu-toggle" title="Menu"><i class="ico" data-ico="hamburger"></i></button>
+        <div class="topbar-title">
+          <h1 id="page-title">Dashboard</h1>
+          <span id="page-sub" class="page-sub"></span>
+        </div>
+        <div class="topbar-right">
+          <div class="clock" id="clock"></div>
+          <button class="btn btn-ghost" id="quick-lock" title="Lock the app now (requires a PIN)"><i class="ico" data-ico="lock"></i><span class="btn-t"> Lock</span></button>
+          <button class="btn btn-ghost" id="quick-export" title="Download a backup of all data"><i class="ico" data-ico="download"></i><span class="btn-t"> Backup</span></button>
+        </div>
+      </header>
+
+      <main class="content" id="view" aria-live="polite">
+        <div class="loading">Loading…</div>
+      </main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" class="toast-root"></div>
+  <div id="print-area" class="print-area"></div>
+
+  <noscript>
+    <div style="padding:24px;font-family:sans-serif">This app requires JavaScript. Please enable it and reload.</div>
+  </noscript>
+
+  <script src="js/shared/util.js"></script>
+  <script src="js/backend/db.js"></script>
+  <script src="js/backend/store.js"></script>
+  <script src="js/frontend/qrcode.js"></script>
+  <script src="js/frontend/ui.js"></script>
+  <script src="js/frontend/views-core.js"></script>
+  <script src="js/frontend/view-dashboard.js"></script>
+  <script src="js/frontend/view-pos.js"></script>
+  <script src="js/frontend/view-products.js"></script>
+  <script src="js/frontend/view-sales.js"></script>
+  <script src="js/frontend/view-customers.js"></script>
+  <script src="js/frontend/view-credit.js"></script>
+  <script src="js/frontend/view-purchases.js"></script>
+  <script src="js/frontend/view-payables.js"></script>
+  <script src="js/frontend/view-suppliers.js"></script>
+  <script src="js/frontend/view-stockhist.js"></script>
+  <script src="js/frontend/view-reports.js"></script>
+  <script src="js/frontend/view-settings.js"></script>
+  <script src="js/frontend/app.js"></script>
+</body>
+</html>

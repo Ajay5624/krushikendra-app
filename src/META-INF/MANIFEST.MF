@@ -1,0 +1,98 @@
+Manifest-Version: 1.0
+
+Name: AndroidManifest.xml
+SHA-256-Digest: ELJ/xSdL7m2bSUMjglYRCNLqqwsZarjW6LiM0IC/4VI=
+
+Name: assets/assets/app.ico
+SHA-256-Digest: NU8eabjnRgUpNzf3nWcF6L/LUpulzFDO/8IaMQzLo4w=
+
+Name: assets/assets/logo.svg
+SHA-256-Digest: vU2C/4n+KWacunO6Q7x1g/JvMZR1sduhPR2nv4Gg/ks=
+
+Name: assets/css/styles.css
+SHA-256-Digest: VJk5Tsf0aP2TunaKt5q72I5l06UoYQyYIvQADC7wTdM=
+
+Name: assets/index.html
+SHA-256-Digest: 8tPK7AJXNmyNWkYEv+OG31/mcFxDAKfPOCPRHVlasW8=
+
+Name: assets/js/backend/db.js
+SHA-256-Digest: bRBXbSY0JUxNpVhKbGpwNm7rilxr8vIwbvQ+pOUV844=
+
+Name: assets/js/backend/store.js
+SHA-256-Digest: kV2k6xqOCY/pBQpaPix30Ecq54SxeJ08LJ2mrO/YrfE=
+
+Name: assets/js/frontend/app.js
+SHA-256-Digest: exBnsKxV4HOgXUCJIryti2KalGrsF0YT5t3MPSIFfXM=
+
+Name: assets/js/frontend/qrcode.js
+SHA-256-Digest: GK45n4EYK8nekW6cd7GV3yDMWNby1VpisIWimfG/F4A=
+
+Name: assets/js/frontend/ui.js
+SHA-256-Digest: b6wbTm+v1qGK7kU1+E9F1bWRRHI+X2u3GVrhR/iiVuw=
+
+Name: assets/js/frontend/view-credit.js
+SHA-256-Digest: jndF9auMVLBw2KmbrZ44euBGXHNQkoAR0YzkFTpctBs=
+
+Name: assets/js/frontend/view-customers.js
+SHA-256-Digest: nxJTpTMTfOxhNnhgvHcITBlWO76ekKu6GOahFD6K6uQ=
+
+Name: assets/js/frontend/view-dashboard.js
+SHA-256-Digest: ZS6TaEJvEWhZcG4+wJZGZqH/t3DJy5KBdBpIwCqSMRQ=
+
+Name: assets/js/frontend/view-payables.js
+SHA-256-Digest: z6pLOo1tOxFOMHNjohgVV/mC0h1Sxr7NZw9BUfe1zEA=
+
+Name: assets/js/frontend/view-pos.js
+SHA-256-Digest: f03VjC0kH4pB9NohnH8Il9rqYM+YSFsZxrnAx0rDEFw=
+
+Name: assets/js/frontend/view-products.js
+SHA-256-Digest: 6AGGRGz+/Z42r/BZGoseYMRHCLkZpfJE5k0tHTHP0EI=
+
+Name: assets/js/frontend/view-purchases.js
+SHA-256-Digest: LVSUqAAFvLSDK0WPv5xhd2hMYD0Tv20dhTLBM5rTGXo=
+
+Name: assets/js/frontend/view-reports.js
+SHA-256-Digest: YbKmh9Pv3eql3RfRNe5It9bL7T2Xw8RbtFsibupCAPo=
+
+Name: assets/js/frontend/view-sales.js
+SHA-256-Digest: K0R6/jBPSSuAiAYhTkim9S9CXpo/oYi0kEa4t9X7V0Q=
+
+Name: assets/js/frontend/view-settings.js
+SHA-256-Digest: nFxXpSnkyBPuYRzL3ccTrzPILin89mLzM5P0g1oGXTE=
+
+Name: assets/js/frontend/view-stockhist.js
+SHA-256-Digest: xbdgBfMpEQbtvgZNgmH6tigEvbZTpgpXNYemykp68l8=
+
+Name: assets/js/frontend/view-suppliers.js
+SHA-256-Digest: mwfzwo6boxqA0xwU9bxrzSBVPu4o7oTrC57bxw0Inaw=
+
+Name: assets/js/frontend/views-core.js
+SHA-256-Digest: 08oXszBNMcbVBeQV3L6IesmK9ULhB3Kkn5hAgLSE6m4=
+
+Name: assets/js/shared/util.js
+SHA-256-Digest: eh4ws7LFVoF7HXGTANGgSplkROqsiTsP0Z74abedCCk=
+
+Name: assets/shim.js
+SHA-256-Digest: jfbUnF0LWeMk0YBr3Me0VX9LqhUET5LMwtEhrijg/do=
+
+Name: classes.dex
+SHA-256-Digest: hLgaP7aVbcmBBLLt2z0HLk8ASRArNqz1s64jnXTpIf8=
+
+Name: res/drawable/$ic_launcher_background__0.xml
+SHA-256-Digest: bHvjcDn0Z3nYwM5iy7qTn68pF0ygWPim6AMqIpx3Gto=
+
+Name: res/drawable/ic_launcher_background.xml
+SHA-256-Digest: WKxwBbMg8mucsF75qLyPOVWYT9d60WThVHaR9+VAyWM=
+
+Name: res/drawable/ic_launcher_foreground.xml
+SHA-256-Digest: XjMgz5Itjvjx4q18g8cmtxkzEpN2wPez+J0zdshjFh0=
+
+Name: res/mipmap-anydpi-v26/ic_launcher.xml
+SHA-256-Digest: psWw/t0ALA36hdX5GeshH2Zafy5eJvyO8kFgXtiXY2E=
+
+Name: res/mipmap-anydpi-v26/ic_launcher_round.xml
+SHA-256-Digest: psWw/t0ALA36hdX5GeshH2Zafy5eJvyO8kFgXtiXY2E=
+
+Name: resources.arsc
+SHA-256-Digest: 2h7SyptN87sOW0muPJCKFf3D/rL+By0ohorof2PWJxo=
+
