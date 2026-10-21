@@ -22,3 +22,8 @@ dist/
 out/
 *.log
 *.tmp
+
+# Not source. The APK is a build artifact and the playground is a design
+# reference; both stay on disk locally but do not belong in the repository.
+KrushiKendra.apk
+Glassmorphism UI Playground.html
