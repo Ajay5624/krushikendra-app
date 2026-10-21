@@ -1,0 +1,24 @@
+# Windows / OneDrive metadata that reappears on its own in this folder
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Signing keys. A leaked keystore lets anyone ship a fake update over the
+# shop's installed app, so these must never reach the repository.
+*.keystore
+*.jks
+
+# Local environment and secrets
+.env
+.env.*
+*.pem
+
+# Tooling and build output
+node_modules/
+build/
+dist/
+out/
+*.log
+*.tmp
