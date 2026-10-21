@@ -119,7 +119,7 @@
             '<div><div class="section-title">Top by revenue</div>' + topTable(topRev, true) + "</div>" +
             '<div><div class="section-title">Top by quantity</div>' + topTable(topQty, false) + "</div>" +
           "</div></div>" +
-        '<div class="grid cols-2 mt">' +
+        '<div class="grid cols-2 rp-pair mt">' +
           '<div class="card"><div class="card-head"><h2>Sales by month</h2>' +
             '<button class="btn btn-sm btn-ghost" id="rp-csv-sales" title="Export this table">' + ico("download") + ' Export</button></div>' +
             (mRows ? '<div class="table-wrap mt-sm"><table class="data"><thead><tr><th>Month</th><th class="num">Invoices</th><th class="num">Revenue</th><th class="num">Profit</th></tr></thead><tbody>' + mRows + "</tbody></table></div>" : '<div class="muted small mt">Nothing sold in this range — pick a wider range, or check a month with trade in it.</div>') + "</div>" +

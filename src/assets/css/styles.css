@@ -757,6 +757,15 @@ table.pdf tr.tot td { font-weight: 800; background: var(--panel-2); border-top: 
 
 /* Responsive */
 @media (max-width: 1080px) {
+  /* A portrait Pad is 800px wide. With the labelled rail standing in the layout it
+     kept 568px for content and hid a third of the Sales History and Credit Book
+     columns behind a horizontal scroll with no hint. Below this width the rail
+     slides out like it already did on a phone, and the tables get the full screen.
+     A landscape Pad (1334px) keeps the rail. */
+  .sidebar { position: fixed; z-index: 60; left: 0; top: 0; transform: translateX(-100%); transition: transform var(--dur-2) var(--ease-out); box-shadow: var(--shadow-lg); }
+  .sidebar.open { transform: none; }
+  .menu-toggle { display: inline-flex; }
+  .icon-btn.menu-toggle { display: inline-flex; }
   .pos { grid-template-columns: 1fr; }
   .cart { position: static; max-height: none; }
   /* Stacked, an uncapped shelf is 1074px tall and pushes the cart 1161px down —
@@ -765,12 +774,15 @@ table.pdf tr.tot td { font-weight: 800; background: var(--panel-2); border-top: 
      within reach. */
   .pos-catalog { max-height: 52vh; }
   .grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+  /* Seven columns of 12px side padding cost 56px of table width — which is exactly
+     what pushed the Delete button off a portrait screen. Tighter gutters, same
+     information, and it only bites where the columns were already overflowing. */
+  table.data th, table.data td { padding-left: 8px; padding-right: 8px; }
+  /* Sales by month and Inventory valuation are the two ledgers that need a whole
+     screen's width; side by side on a portrait Pad they lost their last columns. */
+  .grid.rp-pair { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
-  .sidebar { position: fixed; z-index: 60; left: 0; top: 0; transform: translateX(-100%); transition: transform var(--dur-2) var(--ease-out); box-shadow: var(--shadow-lg); }
-  .sidebar.open { transform: none; }
-  .menu-toggle { display: inline-flex; }
-  .icon-btn.menu-toggle { display: inline-flex; }
   .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
   .content { padding: 12px; }
