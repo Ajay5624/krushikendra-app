@@ -271,6 +271,14 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .input.invalid:focus, .select.invalid:focus, .textarea.invalid:focus { outline-color: var(--danger); }
 .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .form-grid .full { grid-column: 1 / -1; }
+/* Short, related fields — a phone, an email, a GSTIN — read faster three across
+   than as another row of the two-column grid. Guarded by width so a phone still
+   gets one field per line. */
+@media (min-width: 761px) { .form-grid.thirds { grid-template-columns: repeat(3, 1fr); } }
+/* The 44px label floor lines up a label that carries a tap target with a plain
+   text one beside it. A form whose labels are all plain text pays that floor for
+   nothing, so it opts out and the card stops being two screens tall. */
+.form-grid.lab-tight .field > label { display: block; min-height: 0; }
 /* Two-tier forms: what a transaction needs stays open, the shop's optional
    detail folds away behind one disclosure used by every screen. */
 .form-fold { margin-top: 13px; border-top: 1px solid var(--border); }
@@ -692,6 +700,9 @@ table.inv td.num, table.inv th.num { text-align: right; }
 .pdf-shop img { width: 46px; height: 46px; border-radius: 10px; flex: 0 0 auto; }
 .pdf-shop h1 { font-size: 22px; margin: 0; color: var(--text); }
 .pdf-shop .addr { font-size: 11.5px; color: var(--text-soft); margin-top: 2px; }
+/* The address is entered one part per line; collapsing those lines printed the
+   shop's whole address as one run-on string. */
+.pdf-shop .addr, .inv-addr { white-space: pre-line; }
 .pdf-docmeta { text-align: right; flex: 0 0 auto; }
 .pdf-docmeta .dt { font-size: 18px; font-weight: 800; color: var(--brand-dark); text-transform: uppercase; letter-spacing: .03em; }
 .pdf-docmeta .sub { font-size: 11.5px; color: var(--text-soft); margin-top: 2px; }
@@ -781,6 +792,10 @@ table.pdf tr.tot td { font-weight: 800; background: var(--panel-2); border-top: 
   /* Sales by month and Inventory valuation are the two ledgers that need a whole
      screen's width; side by side on a portrait Pad they lost their last columns. */
   .grid.rp-pair { grid-template-columns: 1fr; }
+  /* A 16-field form in half a portrait screen gives every cell 110px, which wraps
+     its own labels and clips a 15-character GSTIN. The form takes the width and
+     Appearance / Security / Data stack under it. */
+  .grid.set-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
   .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }

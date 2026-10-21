@@ -200,7 +200,7 @@
       (copyLabel ? '<div class="inv-copy">' + h(copyLabel) + "</div>" : "") +
       '<div class="inv-head"><div class="inv-shop"><img class="inv-logo" src="assets/logo.svg" alt=""><div>' +
         '<h2>' + h(s.shopName || "Shop") + "</h2>" +
-        '<div class="small">' + h(s.address || "") + "</div>" +
+        '<div class="small inv-addr">' + h(s.address || "") + "</div>" +
         (s.phone ? '<div class="small">' + h(U.t("ph", lang)) + ": " + h(s.phone) + "</div>" : "") +
         (s.gstin ? '<div class="small">GSTIN: ' + h(s.gstin) + "</div>" : "") +
         (s.email ? '<div class="small">' + h(s.email) + "</div>" : "") +

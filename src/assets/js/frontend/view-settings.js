@@ -32,33 +32,50 @@
     setPage("Settings", "Shop details, defaults & data");
     var s = state.settings;
     el.innerHTML =
-      '<div class="grid cols-2">' +
+      '<div class="grid cols-2 set-grid">' +
+        '<form id="set-form" class="stack">' +
         '<div class="card"><div class="card-head"><h2>Shop details</h2></div>' +
-          '<form id="set-form"><div class="form-grid">' +
-            '<div class="field full"><label>Shop name</label><input class="input" name="shopName" value="' + h(s.shopName) + '"></div>' +
-            '<div class="field full"><label>Address</label><input class="input" name="address" value="' + h(s.address) + '"></div>' +
-            '<div class="field"><label>Phone</label><input class="input" name="phone" value="' + h(s.phone) + '"></div>' +
-            '<div class="field"><label>Email</label><input class="input" name="email" value="' + h(s.email) + '"></div>' +
-            '<div class="field"><label>GSTIN / Tax ID</label><input class="input" name="gstin" value="' + h(s.gstin) + '"></div>' +
-            '<div class="field"><label>Currency symbol</label><input class="input" name="currency" value="' + h(s.currency) + '"></div>' +
-            '<div class="field"><label>Invoice prefix</label><input class="input" name="invoicePrefix" value="' + h(s.invoicePrefix) + '"></div>' +
-            '<div class="field"><label>Purchase prefix</label><input class="input" name="purchasePrefix" value="' + h(s.purchasePrefix) + '"></div>' +
-            '<div class="field"><label>Default tax % (GST)</label><input class="input" type="number" step="0.01" min="0" name="taxRate" value="' + (s.taxRate || 0) + '"></div>' +
+          '<div class="section-title">Shop identity</div>' +
+          '<div class="form-grid lab-tight">' +
+            '<div class="field full"><label>Shop name</label><input class="input" name="shopName" value="' + h(s.shopName) + '" placeholder="As it appears at the top of every invoice"></div>' +
+            '<div class="field full"><label>Address</label><textarea class="textarea" name="address" rows="3" placeholder="Street, village or town, district, state — one per line">' + h(s.address) + '</textarea><span class="hint">Each line prints as its own line on the invoice.</span></div>' +
+            '<div class="field"><label>Phone</label><input class="input" type="tel" name="phone" value="' + h(s.phone) + '" placeholder="9876543210"></div>' +
+            '<div class="field"><label>Email</label><input class="input" type="email" name="email" value="' + h(s.email) + '" placeholder="you@shop.in"></div>' +
+            '<div class="field"><label>GSTIN / Tax ID</label><input class="input" name="gstin" value="' + h(s.gstin) + '" maxlength="15" spellcheck="false" style="text-transform:uppercase" placeholder="27AAPFU0939F1Z5"></div>' +
+            '<div class="field"><label>UPI ID <span class="muted" style="font-weight:400">(reminders &amp; invoice QR)</span></label><input class="input" name="upiId" value="' + h(s.upiId || "") + '" placeholder="9876543210@upi"></div>' +
+          "</div>" +
+          '<div class="section-title mt">Invoice &amp; documents</div>' +
+          '<div class="form-grid lab-tight thirds">' +
+            '<div class="field"><label>Currency symbol</label><input class="input" name="currency" value="' + h(s.currency) + '" maxlength="4"></div>' +
+            '<div class="field"><label>Invoice prefix</label><input class="input" name="invoicePrefix" value="' + h(s.invoicePrefix) + '" placeholder="INV"></div>' +
+            '<div class="field"><label>Purchase prefix</label><input class="input" name="purchasePrefix" value="' + h(s.purchasePrefix) + '" placeholder="PUR"></div>' +
+          "</div>" +
+          '<div class="form-grid lab-tight mt-sm">' +
+            '<div class="field full"><label>Invoice footer</label><input class="input" name="invoiceFooter" value="' + h(s.invoiceFooter) + '" placeholder="A line printed under the total on every invoice"></div>' +
+          "</div>" +
+        "</div>" +
+
+        '<div class="card"><div class="card-head"><h2>Defaults &amp; behaviour</h2></div>' +
+          '<div class="section-title">Stock &amp; tax</div>' +
+          '<div class="form-grid lab-tight thirds">' +
+            '<div class="field"><label>Default tax % (GST)</label><input class="input" type="number" step="0.01" min="0" max="100" name="taxRate" value="' + (s.taxRate || 0) + '"></div>' +
             '<div class="field"><label>Default reorder level</label><input class="input" type="number" step="1" min="0" name="lowStockDefault" value="' + (s.lowStockDefault || 0) + '"></div>' +
-            '<div class="field"><label>Expiry warning (days)</label><input class="input" type="number" step="1" min="0" name="expiryWarnDays" value="' + (s.expiryWarnDays || 0) + '"></div>' +
-            '<div class="field"><label>Auto-lock after idle (min, 0 = off)</label><input class="input" type="number" step="1" min="0" name="idleLockMin" value="' + (s.idleLockMin || 0) + '"></div>' +
-            '<div class="field"><label>UPI ID (reminders &amp; invoice QR)</label><input class="input" name="upiId" value="' + h(s.upiId || "") + '" placeholder="e.g. 9876543210@upi"></div>' +
+            '<div class="field"><label>Expiry warning (days)</label><input class="input" type="number" step="1" min="1" name="expiryWarnDays" value="' + (s.expiryWarnDays || 0) + '"></div>' +
+          "</div>" +
+          '<div class="section-title mt">App behaviour</div>' +
+          '<div class="form-grid lab-tight thirds">' +
+            '<div class="field"><label>Auto-lock after idle</label><input class="input" type="number" step="1" min="0" name="idleLockMin" value="' + (s.idleLockMin || 0) + '"><span class="hint">Minutes untouched. 0 = never.</span></div>' +
             '<div class="field"><label>WhatsApp language</label><select class="select" name="waLang">' +
               '<option value="en"' + ((s.waLang || "en") === "en" ? " selected" : "") + ">English</option>" +
               '<option value="hi"' + (s.waLang === "hi" ? " selected" : "") + ">हिंदी (Hindi)</option>" +
             "</select></div>" +
-            '<div class="field"><label>Invoice print language <span class="muted" style="font-weight:400">(with English)</span></label><select class="select" name="printLang">' +
+            '<div class="field"><label>Invoice print language</label><select class="select" name="printLang">' +
               U.LANGS.map(function (L) { return '<option value="' + L.code + '"' + ((s.printLang || "en") === L.code ? " selected" : "") + ">" + h(L.label) + "</option>"; }).join("") +
-            "</select></div>" +
-            '<div class="field full"><label>Invoice footer</label><input class="input" name="invoiceFooter" value="' + h(s.invoiceFooter) + '"></div>' +
+            "</select><span class=\"hint\">Prints beside English.</span></div>" +
           "</div>" +
-          '<div class="mt"><button class="btn btn-primary" type="button" id="set-save">Save settings</button></div></form>' +
+          '<div class="mt"><button class="btn btn-primary" type="button" id="set-save">Save settings</button></div>' +
         "</div>" +
+        "</form>" +
 
         '<div class="stack">' +
           '<div class="card"><div class="card-head"><h2>Appearance</h2><span class="sub">Theme</span></div>' +
@@ -113,7 +130,14 @@
       var cur = (d.currency.trim() || "₹").slice(0, 4).replace(/[<>&"']/g, "");
       function clamp(v, lo, hi) { var n = U.num(v); return isNaN(n) ? lo : Math.min(hi, Math.max(lo, n)); }
       var next = {
-        shopName: d.shopName.trim() || "Shop", address: d.address, phone: d.phone, email: d.email, gstin: d.gstin,
+        shopName: d.shopName.trim() || "Shop",
+        // The address is a textarea now: keep the line breaks the owner typed,
+        // drop the padding around them.
+        address: (d.address || "").replace(/\r\n/g, "\n").trim(),
+        phone: (d.phone || "").trim(), email: (d.email || "").trim(),
+        // A GSTIN is canonically upper case with no spaces, and it is printed on
+        // every invoice — normalise it once here rather than at each render.
+        gstin: (d.gstin || "").trim().toUpperCase().replace(/\s+/g, ""),
         currency: cur, invoicePrefix: d.invoicePrefix.trim() || "INV", purchasePrefix: d.purchasePrefix.trim() || "PUR",
         taxRate: clamp(d.taxRate, 0, 100), lowStockDefault: clamp(d.lowStockDefault, 0, 1000), expiryWarnDays: clamp(d.expiryWarnDays, 1, 3650),
         idleLockMin: clamp(d.idleLockMin, 0, 720),
