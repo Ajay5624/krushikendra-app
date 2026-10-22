@@ -48,8 +48,23 @@ mkdir -p "$BUILD/classes"
 echo "== compiling assembler"
 javac -d "$BUILD/classes" "$ROOT/tools/Assemble.java"
 
+# Every build must be installable as an update over the one before it, which
+# Android only allows when versionCode rises. The manifest is stored verbatim, so
+# the version is stamped into it at assembly time rather than recompiled.
+# Commit count is monotonic with the code and needs no state file; the label is
+# derived from it at a fixed width because an in-place patch cannot resize the
+# string it lives in.
+if [ -d "$ROOT/.git" ]; then
+  CODE="$(git -C "$ROOT" rev-list --count HEAD)"
+else
+  echo "FATAL: no git history to take the version from (shallow clone?)" >&2; exit 1
+fi
+[ "$CODE" -gt 14 ] || { echo "FATAL: versionCode $CODE is not above the 14 already shipped" >&2; exit 1; }
+NAME="$(printf "%d.%02d" $((1 + CODE / 100)) $((CODE % 100)))"
+echo "== version $NAME (versionCode $CODE)"
+
 echo "== assembling package from src/"
-java -cp "$BUILD/classes" Assemble "$SRC" "$BUILD/unsigned.apk"
+java -cp "$BUILD/classes" Assemble "$SRC" "$BUILD/unsigned.apk" "$CODE" "$NAME"
 
 echo "== zipalign"
 "$ZIPALIGN" -f -p 4 "$BUILD/unsigned.apk" "$BUILD/aligned.apk"
@@ -60,11 +75,14 @@ $APKSIGNER sign --ks "$KEYSTORE" --ks-key-alias krushikendra \
   --v1-signing-enabled false --v2-signing-enabled false --v3-signing-enabled true \
   --out "$BUILD/signed.apk" "$BUILD/aligned.apk"
 
-# The version label still comes from the binary manifest stored verbatim, so this
-# reports 1.13 / versionCode 14. Raising it needs aapt2 to recompile the manifest.
-VER="$("$AAPT" dump badging "$BUILD/signed.apk" 2>/dev/null | sed -n "s/.*versionName='\([^']*\)'.*/\1/p" | head -1)"
-[ -n "$VER" ] || { echo "FATAL: aapt could not read the manifest of the built APK" >&2; exit 1; }
-OUT="$BUILD/KrushiKendra-$VER.apk"
+# Read the version back out of the signed APK: if the stamp did not survive
+# zipalign, signing and Android's own parser, the build is wrong.
+BADGE="$("$AAPT" dump badging "$BUILD/signed.apk" 2>/dev/null | head -1)"
+GOT_CODE="$(printf '%s' "$BADGE" | sed -n "s/.*versionCode='\([^']*\)'.*/\1/p")"
+GOT_NAME="$(printf '%s' "$BADGE" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")"
+[ "$GOT_CODE" = "$CODE" ] && [ "$GOT_NAME" = "$NAME" ] \
+  || { echo "FATAL: built APK reports $GOT_NAME / versionCode $GOT_CODE, expected $NAME / $CODE" >&2; exit 1; }
+OUT="$BUILD/KrushiKendra-$NAME.apk"
 mv "$BUILD/signed.apk" "$OUT"
 
 echo "== verifying"
@@ -74,15 +92,33 @@ unzip -v "$OUT" | grep "resources.arsc" | grep -q "Stored" \
   || { echo "FATAL: resources.arsc is not STORED; Android cannot memory-map it" >&2; exit 1; }
 echo "resources.arsc stored ok"
 
-# Every shell entry must survive assembly, alignment and signing unchanged.
+# Every shell entry must survive assembly, alignment and signing unchanged. The
+# manifest is the one exception: it carries this build's version, so the check is
+# that exactly the version bytes differ - same length, and only 4 bytes of
+# versionCode plus two per character of versionName.
 while IFS= read -r -d '' f; do
   rel="${f#"$SRC"/}"
   unzip -p "$OUT" "$rel" > "$BUILD/.a" 2>/dev/null || { echo "FATAL: $rel missing from the APK" >&2; exit 1; }
-  cmp -s "$BUILD/.a" "$f" || { echo "FATAL: $rel in the APK differs from src/" >&2; exit 1; }
-  echo "shell intact: $rel"
+  if [ "$rel" = "AndroidManifest.xml" ]; then
+    sa="$(wc -c < "$BUILD/.a")"; sb="$(wc -c < "$f")"
+    [ "$sa" = "$sb" ] || { echo "FATAL: manifest length changed, $sb to $sa" >&2; exit 1; }
+    # cmp exits 1 when files differ, which pipefail would otherwise turn into a
+    # silent death here, so its status is discarded deliberately.
+    diffs="$( { cmp -l "$BUILD/.a" "$f" || true; } | wc -l )"
+    want=$((4 + 2 * ${#NAME}))
+    # Assemble.java already proves every changed byte sits inside the version
+    # fields; this bounds it again from outside the JVM. 14 to 22 is one byte, so
+    # the floor is "something changed" and the ceiling is the whole field width.
+    [ "$diffs" -ge 1 ] && [ "$diffs" -le "$want" ] \
+      || { echo "FATAL: manifest differs from src/ in $diffs bytes, expected 1..$want" >&2; exit 1; }
+    echo "manifest stamped only: $diffs of $sa bytes"
+  else
+    cmp -s "$BUILD/.a" "$f" || { echo "FATAL: $rel in the APK differs from src/" >&2; exit 1; }
+    echo "shell intact: $rel"
+  fi
 done < <(find "$SRC" -maxdepth 1 -type f -print0; \
          find "$SRC/res" -type f -print0)
-rm -f "$BUILD/.a"
+rm -f "$BUILD/.a" "$BUILD/unsigned.apk" "$BUILD/aligned.apk"
 
 # Whole-app smoke test: aapt parsing the manifest and resources proves the binary
 # manifest and resources.arsc are structurally readable, which the byte checks
@@ -92,8 +128,8 @@ echo "manifest and resources parse ok"
 echo "packaged files: $(unzip -l "$OUT" | tail -1 | awk '{print $2}')"
 
 echo
-echo "built $OUT"
-echo "Signed with the keystore at $KEYSTORE. If a build signed with this same key is"
-echo "already on the tablet, this one cannot replace it in place until versionCode is"
-echo "raised - and if the key is lost, the next build needs an uninstall, which erases"
-echo "that device's records. Take Settings > Backup off the tablet before uninstalling."
+echo "built $OUT  (version $NAME, versionCode $CODE)"
+echo "Signed with the keystore at $KEYSTORE. A device already running a build signed"
+echo "with this key updates in place, because versionCode rises with every commit. A"
+echo "device running the original app needs uninstalling first, which erases its"
+echo "records - take Settings > Backup off it before doing that."
