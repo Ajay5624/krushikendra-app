@@ -45,7 +45,7 @@
       "</div>";
 
     var ptbPay = $("#ptb-pay", el);
-    if (ptbPay) ptbPay.onclick = function () { checkout(); };
+    if (ptbPay) ptbPay.onclick = function () { openPayStep(); };
 
     // chips
     var allCats = ["All"].concat(cats());
@@ -120,34 +120,19 @@
         "</div>";
       }).join("") : '<div class="cart-empty">Cart is empty.<br><span class="small">Click a product to add it.</span></div>';
 
-      var m = state.posMeta;
       $("#pos-cart", el).innerHTML =
         '<div class="cart">' +
           '<div class="cart-head"><span>Current Sale</span><span class="row" style="gap:8px"><span class="badge blue">' + state.cart.length + ' item(s)</span><button class="btn btn-sm btn-ghost" id="cart-clear"' + (state.cart.length ? "" : " disabled") + ">Clear</button></span></div>" +
           '<div class="cart-items">' + lines + "</div>" +
           '<div class="cart-foot">' +
-            '<div class="form-grid" style="grid-template-columns:1fr 1fr;gap:8px">' +
-              '<div class="field"><label>Customer <button type="button" class="link-btn" id="cust-pick" title="Pick a previous customer">' + ico("users") + ' pick</button></label><input class="input" name="customerName" placeholder="Walk-in" value="' + h(m.customerName) + '"></div>' +
-              '<div class="field"><label>Phone</label><input class="input" name="customerPhone" value="' + h(m.customerPhone) + '"></div>' +
+            '<div class="sum-strip">' +
+              '<span>Subtotal <b id="sum-sub">' + U.money(t.sub) + "</b></span>" +
+              '<span>Disc <b id="sum-disc">− ' + U.money(t.disc) + "</b></span>" +
+              '<span id="sum-tax-label">Tax (' + t.taxRate + '%) <b id="sum-tax">' + U.money(t.tax) + "</b></span>" +
             "</div>" +
-            '<div class="form-grid mt-sm" style="grid-template-columns:1fr 1fr 1fr;gap:8px">' +
-              '<div class="field"><label>Discount</label><input class="input" type="number" step="0.01" min="0" name="discount" value="' + (m.discount || 0) + '"></div>' +
-              '<div class="field"><label>Type</label><select class="select" name="discountType"><option value="amt"' + (m.discountType === "amt" ? " selected" : "") + ">Amount</option><option value=\"pct\"" + (m.discountType === "pct" ? " selected" : "") + ">%</option></select></div>" +
-              '<div class="field"><label>Tax %</label><input class="input" type="number" step="0.01" min="0" name="taxRate" value="' + (m.taxRate || 0) + '"></div>' +
-            "</div>" +
-            '<div class="mt-sm">' +
-              '<div class="sum-strip">' +
-                '<span>Subtotal <b id="sum-sub">' + U.money(t.sub) + "</b></span>" +
-                '<span>Disc <b id="sum-disc">− ' + U.money(t.disc) + "</b></span>" +
-                '<span id="sum-tax-label">Tax (' + t.taxRate + '%) <b id="sum-tax">' + U.money(t.tax) + "</b></span>" +
-              "</div>" +
-              '<div class="sum-line total"><span>Total</span><span id="sum-total">' + U.money(t.total) + "</span></div>" +
-            "</div>" +
-            '<div class="pay-row"><label>Payment</label><div class="row" id="pay-chips">' +
-              PAYMENTS.map(function (pm) { return '<button type="button" class="chip' + (m.paymentMethod === pm ? " active" : "") + '" data-pay="' + h(pm) + '">' + h(pm) + "</button>"; }).join("") +
-            "</div></div>" +
-            '<div id="pos-credit-warn"></div>' +
-            '<button class="btn btn-primary btn-pay mt-sm" id="cart-pay" style="width:100%"' + (state.cart.length ? "" : " disabled") + ">Complete Sale</button>" +
+            '<div class="sum-line total"><span>Total</span><span id="sum-total">' + U.money(t.total) + "</span></div>" +
+            '<button type="button" class="pay-meta" id="pay-meta"' + (state.cart.length ? "" : " disabled") + ">" + payMetaHtml(t) + "</button>" +
+            '<button class="btn btn-primary btn-pay mt-sm" id="cart-pay" style="width:100%"' + (state.cart.length ? "" : " disabled") + ">" + (state.cart.length ? "Pay " + U.money(t.total) : "Pay") + "</button>" +
           "</div>" +
         "</div>";
 
@@ -158,35 +143,23 @@
       $$("#pos-cart [data-qty]", el).forEach(function (inp) {
         inp.onchange = function () { setQty(+inp.dataset.qty, U.num(inp.value)); };
       });
-      ["customerName", "customerPhone", "discount", "discountType", "taxRate"].forEach(function (nm) {
-        var f = $('#pos-cart [name="' + nm + '"]', el);
-        if (f) f.addEventListener("input", function () {
-          state.posMeta[nm] = f.value;
-          if (nm === "discount" || nm === "taxRate") updateTotalsOnly();
-          if (nm === "customerName" || nm === "customerPhone") updateCreditWarn();
-        });
-        if (f && nm === "discountType") f.addEventListener("change", function () { state.posMeta[nm] = f.value; updateTotalsOnly(); });
-      });
-      $$("#pay-chips .chip", el).forEach(function (b) {
-        b.onclick = function () {
-          state.posMeta.paymentMethod = b.dataset.pay;
-          $$("#pay-chips .chip", el).forEach(function (x) { x.classList.toggle("active", x === b); });
-          updateCreditWarn();
-        };
-      });
       $("#cart-clear", el).onclick = function () { state.cart = []; state.posMeta.discount = 0; paintCart(); };
-      var cp = $("#cust-pick", el); if (cp) cp.onclick = function () { openCustomerPick(true); };
-      var pay = $("#cart-pay", el); if (pay) pay.onclick = checkout;
-      updateCreditWarn();
+      $("#pay-meta", el).onclick = openPayStep;
+      var pay = $("#cart-pay", el); if (pay) pay.onclick = openPayStep;
     }
 
-    function updateCreditWarn() {
-      var box = $("#pos-credit-warn", el); if (!box) return;
+    // Who the bill is for and how it is being paid still have to read off the
+    // panel at a glance — they just no longer need five input boxes to do it.
+    function payMetaHtml(t) {
+      var m = state.posMeta;
       var chk = posCreditCheck();
-      box.innerHTML = (chk && chk.over)
-        ? '<div class="alert red mt-sm" style="display:block">' + ico("alert") + ' <strong>' + h(chk.name || "This customer") + "</strong> would exceed their credit limit." +
-          '<div class="small" style="margin-top:4px">Limit ' + U.money(chk.limit) + " · already due " + U.money(chk.existing) + " · this sale " + U.money(chk.total) + " → <strong>" + U.money(chk.projected) + "</strong></div></div>"
-        : "";
+      return '<span class="pm-line"><strong>' + h((m.customerName || "").trim() || "Walk-in") + "</strong>" +
+          '<span class="pm-sep">·</span>' + h(m.paymentMethod || "Cash") +
+          (t.disc ? '<span class="pm-sep">·</span>− ' + U.money(t.disc) : "") +
+          (t.tax ? '<span class="pm-sep">·</span>Tax ' + U.money(t.tax) : "") +
+          (chk && chk.over ? ' <span class="badge red">over limit</span>' : "") +
+        "</span>" +
+        '<span class="pm-edit">' + ico("edit") + " change</span>";
     }
 
     function updateTotalsOnly() {
@@ -198,12 +171,16 @@
       set("sum-total", U.money(t.total));
       var lab = $("#sum-tax-label", el);
       if (lab) lab.firstChild.textContent = "Tax (" + t.taxRate + "%) ";
-      // The top bar carries the amount the counter says out loud, so it has to move
-      // with a discount or a tax edit — repainting only the foot left it on the
-      // pre-discount total until something else redrew the cart.
+      var pm = $("#pay-meta", el);
+      if (pm) pm.innerHTML = payMetaHtml(t);
+      // The top bar and the Pay button carry the amount the counter says out loud,
+      // so both have to move with a discount or a tax edit — repainting only the
+      // foot left them on the pre-discount total until the cart next redrew.
       set("ptb-total", U.money(t.total));
       var pp = $("#ptb-pay", el);
       if (pp) pp.textContent = state.cart.length ? ("Pay " + U.money(t.total)) : "Pay";
+      var cp = $("#cart-pay", el);
+      if (cp) cp.textContent = state.cart.length ? ("Pay " + U.money(t.total)) : "Pay";
     }
 
     _paintCart = paintCart;
@@ -334,50 +311,101 @@
     requestAnimationFrame(function () { if (_paintCart) _paintCart(); });
   }
 
-  function checkout() {
+  /* Who the bill is for, what comes off it and how it is paid used to sit in the
+     cart panel as five labelled inputs — 186px of the space the item list needs
+     to show the sale. They are the Pay step now: tap Pay, set it, confirm. */
+  function openPayStep() {
     if (!state.cart.length) { toast("Cart is empty", "warn"); return; }
     var m = state.posMeta;
-    if (m.paymentMethod === "Credit" && !(m.customerName || "").trim()) {
-      toast("Credit sale needs a customer name — fill it in the Current Sale panel", "warn");
-      return;
-    }
-    var t = cartTotals();
-    var who = (m.customerName || "").trim() || "Walk-in";
-    var payLbl = m.paymentMethod === "Credit" ? "Credit — to be collected" : (m.paymentMethod || "Cash");
-    var chk = posCreditCheck();
-    var baseMsg =
-      "Sell <strong>" + state.cart.length + " item(s)</strong> to <strong>" + h(who) + "</strong> for <strong>" + U.money(t.total) + "</strong> (" + h(payLbl) + ")?" +
-      '<br><span class="small muted">Subtotal ' + U.money(t.sub) +
-      (t.disc ? " · Discount " + U.money(t.disc) : "") +
-      (t.tax ? " · Tax " + U.money(t.tax) : "") + "</span>";
-    var copts = (chk && chk.over)
-      ? {
-          title: "Over credit limit", danger: true, okText: "Sell anyway",
-          message: '<div class="alert red" style="display:block"><strong>' + h(chk.name || who) + "</strong> is over their credit limit.</div>" +
-            '<div class="small mt-sm">Limit ' + U.money(chk.limit) + " · already due " + U.money(chk.existing) + " · this sale " + U.money(t.total) +
-            "<br>After this sale: <strong>" + U.money(chk.projected) + "</strong> (over by " + U.money(chk.projected - chk.limit) + ").</div>" +
-            '<div class="mt-sm">' + baseMsg + "</div>"
+    modal({
+      title: "Take payment", icon: "cash", hue: "in",
+      body:
+        '<div class="form-grid">' +
+          '<div class="field"><label>Customer <button type="button" class="link-btn" id="pay-pick" title="Pick a previous customer">' + ico("users") + ' pick</button></label>' +
+            '<input class="input" id="pay-name" placeholder="Walk-in" value="' + h(m.customerName) + '"></div>' +
+          '<div class="field"><label>Phone</label><input class="input" type="tel" id="pay-phone" placeholder="optional" value="' + h(m.customerPhone) + '"></div>' +
+        "</div>" +
+        '<div class="form-grid thirds mt">' +
+          '<div class="field"><label>Discount</label><input class="input" type="number" step="0.01" min="0" id="pay-disc" value="' + (m.discount || 0) + '"></div>' +
+          '<div class="field"><label>Type</label><select class="select" id="pay-dtype"><option value="amt">Amount</option><option value="pct">%</option></select></div>' +
+          '<div class="field"><label>Tax %</label><input class="input" type="number" step="0.01" min="0" id="pay-tax" value="' + (m.taxRate || 0) + '"></div>' +
+        "</div>" +
+        '<div class="pay-row mt"><label>Payment</label><div class="row" id="pay-methods">' +
+          PAYMENTS.map(function (pm) { return '<button type="button" class="chip' + (m.paymentMethod === pm ? " active" : "") + '" data-pay="' + h(pm) + '">' + h(pm) + "</button>"; }).join("") +
+        "</div></div>" +
+        '<div class="mt" id="pay-totals"></div>' +
+        '<div id="pay-warn"></div>',
+      footer: '<button class="btn" data-close>Back to cart</button><button class="btn btn-primary btn-pay" id="pay-confirm">Confirm Sale</button>',
+      onMount: function (el, close) {
+        var name = $("#pay-name", el), phone = $("#pay-phone", el), disc = $("#pay-disc", el),
+            dtype = $("#pay-dtype", el), tax = $("#pay-tax", el), btn = $("#pay-confirm", el);
+        dtype.value = m.discountType === "pct" ? "pct" : "amt";
+
+        function read() {
+          m.customerName = name.value; m.customerPhone = phone.value;
+          m.discount = U.num(disc.value); m.discountType = dtype.value; m.taxRate = U.num(tax.value);
         }
-      : { title: "Complete this sale?", okText: "Confirm Sale", message: baseMsg };
-    confirm(copts).then(function (yes) {
-      if (!yes) return;
-      var payload = {
-        items: state.cart.map(function (l) { return { productId: l.productId, quantity: l.qty, price: l.price, unitId: l.unitId || "__base", unitName: l.unitName || "", unitFactor: l.unitFactor || 1 }; }),
-        customerName: (m.customerName || "").trim() || "Walk-in",
-        customerPhone: (m.customerPhone || "").trim(),
-        discount: U.num(m.discount), discountType: m.discountType,
-        taxRate: U.num(m.taxRate), paymentMethod: m.paymentMethod, date: U.todayISO()
-      };
-      store.createSale(payload).then(function (sale) {
-        state.cart = [];
-        state.posSearch = "";
-        state.posCategory = "All";
-        state.posMeta = { customerName: "", customerPhone: "", discount: 0, discountType: "amt", taxRate: state.settings.taxRate || 0, paymentMethod: m.paymentMethod };
-        return ui.reload().then(function () { ui.render(); return sale; });
-      }).then(function (sale) {
-        showSaleSuccess(sale);
-      }).catch(function (e) { toast(e.message || "Sale failed", "error"); });
+        function paint() {
+          var t = cartTotals(), chk = posCreditCheck(), over = !!(chk && chk.over);
+          $("#pay-totals", el).innerHTML =
+            '<div class="sum-line"><span class="muted">Subtotal</span><span>' + U.money(t.sub) + "</span></div>" +
+            '<div class="sum-line"><span class="muted">Discount</span><span>− ' + U.money(t.disc) + "</span></div>" +
+            '<div class="sum-line"><span class="muted">Tax (' + t.taxRate + '%)</span><span>' + U.money(t.tax) + "</span></div>" +
+            '<div class="sum-line total"><span>Total</span><span>' + U.money(t.total) + "</span></div>";
+          $("#pay-warn", el).innerHTML = over
+            ? '<div class="alert red" style="display:block">' + ico("alert") + ' <strong>' + h(chk.name || "This customer") + "</strong> would exceed their credit limit." +
+              '<div class="small" style="margin-top:4px">Limit ' + U.money(chk.limit) + " · already due " + U.money(chk.existing) + " · this sale " + U.money(chk.total) +
+              " → <strong>" + U.money(chk.projected) + "</strong> (over by " + U.money(chk.projected - chk.limit) + ").</div></div>"
+            : "";
+          btn.textContent = "Confirm " + U.money(t.total) + (over ? " anyway" : "");
+          btn.classList.toggle("btn-danger", over);
+          btn.classList.toggle("btn-primary", !over);
+          if (_paintCart) _paintCart();
+        }
+        [name, phone, disc, tax].forEach(function (f) { f.addEventListener("input", function () { read(); paint(); }); });
+        dtype.addEventListener("change", function () { read(); paint(); });
+        $$("#pay-methods .chip", el).forEach(function (b) {
+          b.onclick = function () {
+            m.paymentMethod = b.dataset.pay;
+            $$("#pay-methods .chip", el).forEach(function (x) { x.classList.toggle("active", x === b); });
+            paint();
+          };
+        });
+        $("#pay-pick", el).onclick = function () {
+          openCustomerPick(true, function () {
+            name.value = m.customerName || ""; phone.value = m.customerPhone || ""; paint();
+          });
+        };
+        btn.onclick = function () {
+          read();
+          if (m.paymentMethod === "Credit" && !(m.customerName || "").trim()) {
+            toast("Credit sale needs a customer name", "warn"); name.focus(); return;
+          }
+          close();
+          commitSale(m);
+        };
+        paint();
+      }
     });
+  }
+
+  function commitSale(m) {
+    var payload = {
+      items: state.cart.map(function (l) { return { productId: l.productId, quantity: l.qty, price: l.price, unitId: l.unitId || "__base", unitName: l.unitName || "", unitFactor: l.unitFactor || 1 }; }),
+      customerName: (m.customerName || "").trim() || "Walk-in",
+      customerPhone: (m.customerPhone || "").trim(),
+      discount: U.num(m.discount), discountType: m.discountType,
+      taxRate: U.num(m.taxRate), paymentMethod: m.paymentMethod, date: U.todayISO()
+    };
+    store.createSale(payload).then(function (sale) {
+      state.cart = [];
+      state.posSearch = "";
+      state.posCategory = "All";
+      state.posMeta = { customerName: "", customerPhone: "", discount: 0, discountType: "amt", taxRate: state.settings.taxRate || 0, paymentMethod: m.paymentMethod };
+      return ui.reload().then(function () { ui.render(); return sale; });
+    }).then(function (sale) {
+      showSaleSuccess(sale);
+    }).catch(function (e) { toast(e.message || "Sale failed", "error"); });
   }
 
   function showSaleSuccess(sale) {
@@ -398,7 +426,7 @@
     });
   }
 
-  function openCustomerPick(allowPick) {
+  function openCustomerPick(allowPick, onPicked) {
     var list = customerList();
     if (!list.length) { toast("No named customers yet — add a customer name on a sale first", "warn"); return; }
     var m;
@@ -440,6 +468,7 @@
               state.posMeta.customerName = c.name;
               state.posMeta.customerPhone = c.phone || "";
               m.close();
+              if (onPicked) onPicked();
               if (_paintCart) _paintCart(); else ui.setView("pos");
               toast("Customer set to " + c.name);
             };

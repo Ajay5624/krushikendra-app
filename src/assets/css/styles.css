@@ -644,6 +644,20 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .pay-row > label { font-size: 12px; font-weight: 600; color: var(--text-soft); }
 .pay-row .row { gap: 5px; justify-content: space-between; }
 .pay-row .chip { padding: 7px 9px; font-size: 12.5px; }
+/* Who the bill is for and how it is paid, readable at a glance and one tap from
+   the Pay step that owns those fields now. */
+.pay-meta {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;
+  min-height: 44px; margin-top: 8px; padding: 8px 10px; text-align: left; cursor: pointer;
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--panel); color: var(--text-soft); font-size: 12.5px;
+}
+.pay-meta .pm-line { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pay-meta .pm-line strong { color: var(--text); font-weight: 700; }
+.pay-meta .pm-sep { margin: 0 5px; color: var(--text-mute); }
+.pay-meta .pm-edit { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; color: var(--brand-dark); font-weight: 650; font-size: 11.5px; }
+.pay-meta .pm-edit .ico { width: 13px; height: 13px; }
+.pay-meta:disabled { opacity: .5; cursor: not-allowed; }
 .btn-pay { min-height: 46px; padding: 11px 15px; font-size: 15px; font-weight: 750; }
 .cart-empty { padding: 22px 14px; text-align: center; color: var(--text-mute); }
 
