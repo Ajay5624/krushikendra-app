@@ -192,10 +192,3 @@ the low-stock alert are still ~34dp tall.
 Still unproven on hardware: printing through the system print service, landscape at
 any width, and the Redmi Pad the shop tablet is expected to run on. Take a Backup
 off the device before installing anything new there.
-
-## Not in version control
-
-`build/` (build output) and `Glassmorphism UI Playground.html` (a design
-reference) are ignored, and so are signing keys, which should stay that way.
-`KrushiKendra.apk` is ignored too — it is the base APK `tools/build-apk.sh` wants,
-it was untracked in `932c5aa`, and this machine no longer has it.
