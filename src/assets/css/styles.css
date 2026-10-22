@@ -47,6 +47,9 @@
   --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 6px 20px rgba(16, 24, 40, .07);
   --shadow-lg: 0 16px 48px rgba(16, 24, 40, .24);
   --sidebar-w: 232px;
+  /* One rhythm for the space between things that sit beside each other: cards,
+     tiles, form rows. Toolbar buttons keep their own tighter gap. */
+  --gap: 12px;
 }
 
 * { box-sizing: border-box; }
@@ -158,7 +161,13 @@ input, textarea, select { caret-color: var(--brand); }
   background-color: var(--panel); background-image: var(--sack);
   border: 1px solid var(--border);
   border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px;
+  display: flex; flex-direction: column;
 }
+/* A card in a two-column row is stretched to its taller neighbour. Without this
+   the leftover height sits as a hole at the bottom of the shorter card; with it
+   the launcher tiles and the ledger share the card out instead. */
+.card > .quick-grid { flex: 1; grid-auto-rows: 1fr; }
+.card > .table-wrap, .card > .ptiles { flex: 1; }
 /* A card head is a shelf sign: DIN lettering over a band rule that runs edge to edge.
    --band-c is set only where a section carries meaning (a category, money in/out, credit). */
 .card-head {
@@ -171,7 +180,7 @@ input, textarea, select { caret-color: var(--brand); }
 .card-head .sub { font-size: 11.5px; color: var(--text-mute); font-weight: 400; }
 .section-title { font-family: var(--font-slab); font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--text-soft); margin: 0 0 9px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
 
-.grid { display: grid; gap: 12px; }
+.grid { display: grid; gap: var(--gap); }
 /* A grid track will not shrink below its content min-width, so a wide ledger inside a
    card can push the whole page sideways instead of scrolling inside its own wrapper.
    This belonged at every width; it only ever applied on a phone. */
@@ -220,7 +229,7 @@ button.badge:hover { filter: brightness(.95); }
 .ico { width: 16px; height: 16px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Counter launcher — the buttons a shopkeeper hits all day */
-.quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
 .quick { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 8px 12px; text-align: left; justify-content: flex-start; }
 .quick .ico { width: 20px; height: 20px; color: var(--band-c, var(--brand-dark)); }
 .quick b { font-family: var(--font-slab); font-size: 13.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; display: block; line-height: 1.2; }
@@ -278,7 +287,7 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .input.invalid, .select.invalid, .textarea.invalid { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(220,38,38,.12); }
 /* The field is focused when it is rejected, so the focus ring must not argue with it. */
 .input.invalid:focus, .select.invalid:focus, .textarea.invalid:focus { outline-color: var(--danger); }
-.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap); }
 .form-grid .full { grid-column: 1 / -1; }
 /* Short, related fields — a phone, an email, a GSTIN — read faster three across
    than as another row of the two-column grid. Guarded by width so a phone still
@@ -427,12 +436,16 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 @keyframes slide { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
 
 /* POS layout */
-.pos { display: grid; grid-template-columns: 1fr clamp(360px, 30vw, 420px); gap: 12px; align-items: start; }
+/* Both columns fill the same box, so the shelf and the bill finish at the same
+   line instead of leaving a 104px step at the bottom of the working screen. */
+.pos { display: grid; grid-template-columns: 1fr clamp(360px, 30vw, 420px); gap: var(--gap); align-items: stretch; }
 .pos-catalog { max-height: calc(100vh - 90px); overflow-y: auto; padding-top: 0; }
 .pos-topbar {
   position: sticky; top: 0; z-index: 6;
   display: flex; align-items: center; gap: 10px;
-  background: var(--panel); padding: 10px 0 8px; margin: 0 0 8px;
+  /* Bleeds to the card's inner edge like every other card head, so its rule line
+     is the same length as the one under "Shop details" or "Sales in range". */
+  background: var(--panel); padding: 10px 14px 8px; margin: 0 -14px 8px;
   border-bottom: 1px solid var(--border);
 }
 .pos-topbar .ptb-count { font-size: 12px; font-weight: 650; color: var(--text-soft); background: var(--chip-gray); padding: 3px 9px; border-radius: 999px; }
@@ -445,7 +458,7 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 /* 168px minimum left the counter shelf one column short of five with the rail out
    of the way. Tile counts at other widths are unchanged: the columns stretch to
    fill either way, this only decides how many fit. */
-.prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 10px; }
+.prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: var(--gap); }
 .prod-card { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; padding: 10px; cursor: pointer; background: var(--panel); box-shadow: var(--shadow); content-visibility: auto; contain-intrinsic-size: auto 200px; transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out); }
 /* The lift is a mouse affordance. On touch, :hover sticks after a tap, so a
    finger would leave tiles raised and shadowed until the next tap elsewhere. */
@@ -518,7 +531,7 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .band-head::after { animation-delay: calc(var(--i, 0) * 45ms); }
 @keyframes draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
-.ptiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(198px, 1fr)); gap: 10px; }
+.ptiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(198px, 1fr)); gap: var(--gap); }
 /* A 270-tile shelf is 5,000 nodes. Skipping layout and paint for the tiles off
    screen is what keeps scrolling at panel rate; the intrinsic size keeps the
    scrollbar honest until a tile is actually measured. */
@@ -610,10 +623,15 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .img-lightbox { text-align: center; }
 .img-lightbox img { max-width: 100%; max-height: 70vh; border-radius: var(--radius-sm); }
 
-.cart { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); position: sticky; top: 66px; display: flex; flex-direction: column; max-height: calc(100vh - 90px); }
+/* The bill card is painted into a wrapper by the view, so stretching the grid
+   column alone leaves the card at its content height inside a taller wrapper. */
+#pos-cart { display: flex; min-width: 0; }
+/* The floor keeps the bill at working height when a search or a category leaves
+   the shelf with two tiles to fill, which would otherwise drag the row down. */
+.cart { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); position: sticky; top: 66px; flex: 1; min-height: calc(100vh - 180px); display: flex; flex-direction: column; max-height: calc(100vh - 90px); }
 .cart-head { padding: 9px 13px; border-bottom: 1px solid var(--border); font-weight: 650; display: flex; justify-content: space-between; align-items: center; }
-.cart-items { overflow-y: auto; flex: 1; padding: 3px 7px; }
-.cart-line { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-bottom: 1px dashed var(--border); }
+.cart-items { overflow-y: auto; flex: 1; padding: 3px 7px; display: flex; flex-direction: column; }
+.cart-line { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 7px 8px; border-bottom: 1px dashed var(--border); }
 .cart-line:last-child { border-bottom: 0; }
 /* A pack photo in the line is what confirms you billed the right one when a
    brand ships several look-alike bags. Kept at the size of the text block so it
@@ -659,7 +677,7 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .pay-meta .pm-edit .ico { width: 13px; height: 13px; }
 .pay-meta:disabled { opacity: .5; cursor: not-allowed; }
 .btn-pay { min-height: 46px; padding: 11px 15px; font-size: 15px; font-weight: 750; }
-.cart-empty { padding: 22px 14px; text-align: center; color: var(--text-mute); }
+.cart-empty { padding: 22px 14px; margin: auto 0; text-align: center; color: var(--text-mute); }
 
 /* Charts (dependency-free bars) */
 .bars { display: flex; align-items: flex-end; gap: 8px; height: 160px; padding-top: 10px; }
@@ -818,16 +836,21 @@ table.pdf tr.tot td { font-weight: 800; background: var(--panel-2); border-top: 
   .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
   .content { padding: 12px; }
+  /* The header used to keep its 16px gutter while the page moved to 12px, so the
+     page title hung 4px off the cards under it. One gutter per breakpoint. */
+  .topbar { padding-left: 12px; padding-right: 12px; }
   .kv { grid-template-columns: 110px 1fr; }
   /* Phone. The clock is the status bar's job, and it was pushing the Backup
      button off-screen so the whole page panned sideways. */
   .clock { display: none; }
   .topbar, .topbar-right { gap: 8px; }
-  .topbar { padding: 0 10px 0; padding-top: 7px; padding-bottom: 7px; }
+  .topbar { padding: 7px 12px; }
   /* Lock and Backup are the two words stealing the title's line. Their icons carry
      the meaning and the buttons already have title text for the long-press hint, so
      on a phone they drop to icons and the page name fits on one line again. */
   @media (max-width: 480px) {
+    .topbar { padding: 7px 10px; }
+    .content { padding: 10px; }
     .topbar-right .btn .btn-t { display: none; }
     .topbar-right .btn { padding: 8px 12px; min-width: 44px; }
   }
