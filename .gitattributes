@@ -1,0 +1,14 @@
+# Bash scripts must keep LF. A CR in the shebang line is a bad-interpreter error
+# on Linux and macOS, and this repo is cloned with core.autocrlf=true on Windows,
+# which would otherwise hand every checkout a CRLF script.
+*.sh text eol=lf
+
+# The Android shell is copied into the APK byte-for-byte, so a line-ending
+# conversion in a checkout would change what ships. Git does convert tracked text
+# here: src/META-INF/KRUSHI.SF and MANIFEST.MF came out of checkout 101 bytes
+# larger than their blobs. These files have no NUL-free guarantee that git's
+# binary sniff will catch every case, so they are declared binary explicitly.
+src/AndroidManifest.xml binary
+src/classes.dex binary
+src/resources.arsc binary
+src/META-INF/** binary
