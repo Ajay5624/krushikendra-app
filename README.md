@@ -29,13 +29,25 @@ Book, Products, Stock History, Purchases, Payables, Suppliers, Reports, Settings
 
 ## Run it
 
+On the counter tablet the app runs from inside the APK — see *Rebuilding the APK*.
+
+On a PC, serve `src/assets` over HTTP and open it in a browser:
+
 ```
-node serve-preview.js      # then open http://127.0.0.1:4173
+py -m http.server 4173 --directory src/assets    # Windows; python3 elsewhere
 ```
 
-A plain HTTP server is used rather than `file://` because IndexedDB needs a real
-origin. `fetch-inter.js` is the one-off script that downloaded the font; you do
-not need it to run the app.
+Then open http://127.0.0.1:4173
+
+An HTTP origin is required rather than `file://` because every record lives in
+IndexedDB, and `file://` does not get one. Any static file server rooted at
+`src/assets` works the same way; this is only a preview, the app has no
+server-side half.
+
+`serve-preview.js`, the plain Node server this repo used for that job, and
+`fetch-inter.js`, the one-off script that downloaded the Inter font now vendored
+under `src/assets/fonts/`, were removed in `0c1becd`. Either is recoverable with
+`git show 0c1becd~1:serve-preview.js`.
 
 There is **no build step, no bundler and no dependencies** — no `npm install`,
 nothing to compile. Files are loaded as written.
