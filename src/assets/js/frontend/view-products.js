@@ -56,7 +56,8 @@
     el.innerHTML =
       metrics([
         { label: "Products", value: state.products.length, hint: catList.length + " categories" },
-        { label: "Stock value (cost)", value: U.money(costVal), hint: "retail " + U.money(retailVal) },
+        { label: "Stock value (cost)", value: U.money(costVal), hint: "on " + state.products.length + " item(s)" },
+        { label: "Stock value (retail)", value: U.money(retailVal), hint: "margin " + U.money(U.roundMoney(retailVal - costVal)) },
         { label: "Low stock", value: state.products.filter(isLow).length, hint: "at or below reorder", attr: 'data-act="low" aria-pressed="' + (F.flag === "low") + '" title="Tap to filter low stock"', hue: "warn" },
         { label: "Expiring soon", value: state.products.filter(isExpiring).length, hint: "within " + warnDays + " days", attr: 'data-act="expiring" aria-pressed="' + (F.flag === "expiring") + '" title="Tap to filter expiring stock"', hue: "bad" },
       ]) +
