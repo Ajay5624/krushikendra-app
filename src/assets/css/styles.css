@@ -402,9 +402,13 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
   position: fixed; inset: 0; background: var(--overlay);
   display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; z-index: 100; overflow-y: auto;
 }
+/* A dialog is capped to the screen and scrolls its own body. The product detail
+   sheet is 1086px tall on an 800px-tall Pad, which left its Close and Save
+   buttons below the fold with no hint that the card continued. */
 .modal {
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg);
-  width: 100%; max-width: 560px; animation: pop var(--dur-2) var(--ease-out);
+  width: 100%; max-width: 560px; max-height: calc(100vh - 80px); animation: pop var(--dur-2) var(--ease-out);
+  display: flex; flex-direction: column;
 }
 .modal.wide { max-width: 860px; }
 .modal.narrow { max-width: 420px; }
@@ -420,7 +424,7 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 }
 .modal-head h3 { font-family: var(--font-slab); font-size: 14px; font-weight: 700; letter-spacing: .05em; color: var(--band-c, var(--text)); display: flex; align-items: center; gap: 8px; }
 .modal-head h3 .ico { width: 17px; height: 17px; }
-.modal-body { padding: 14px; }
+.modal-body { padding: 14px; flex: 1; min-height: 0; overflow-y: auto; }
 .modal-foot { display: flex; gap: 8px; justify-content: flex-end; padding: 11px 15px; border-top: 1px solid var(--border); background: var(--panel-2); border-radius: 0 0 var(--radius) var(--radius); }
 
 /* Toast */
