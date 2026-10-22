@@ -607,9 +607,6 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
    fitted on the tablet at once. Where there is no picture there is nothing to
    frame — the name, category band, price and stock carry the tile. */
 .pos-catalog .pcard-thumb.none { display: none; }
-/* A 1:1 photo made every card ~300px tall, so the shelf showed six products at
-   the counter. A wide crop keeps the pack recognisable and gives back two rows. */
-.pos-catalog .pcard-thumb { aspect-ratio: 16 / 7; height: auto; margin-bottom: 7px; }
 .icon-btn .ico { width: 16px; height: 16px; }
 .icon-btn .chev { transition: transform var(--dur-1) var(--ease-out); }
 .icon-btn .chev.open { transform: rotate(90deg); }
