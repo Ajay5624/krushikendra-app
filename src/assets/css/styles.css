@@ -78,17 +78,26 @@ input, textarea, select { caret-color: var(--brand); }
 /* ---------- App shell ---------- */
 .app-shell { display: flex; min-height: 100vh; }
 
+/* The rail is a drawer at every width. Standing in the layout it cost 231px of
+   the counter Pad's 1334px, which is the difference between three product
+   columns on the billing shelf and five — and a Pad now uses one navigation
+   gesture in both orientations, the same one a phone already used. */
 .sidebar {
   width: var(--sidebar-w);
-  flex: 0 0 var(--sidebar-w);
   background: linear-gradient(180deg, #10231a 0%, #0f1720 100%);
   color: #cbd5e1;
   display: flex;
   flex-direction: column;
-  position: sticky;
+  position: fixed;
+  z-index: 60;
+  left: 0;
   top: 0;
   height: 100vh;
+  transform: translateX(-100%);
+  transition: transform var(--dur-2) var(--ease-out);
+  box-shadow: var(--shadow-lg);
 }
+.sidebar.open { transform: none; }
 .brand {
   display: flex; align-items: center; gap: 9px;
   padding: 14px 14px 11px;
@@ -135,8 +144,8 @@ input, textarea, select { caret-color: var(--brand); }
 .page-sub { font-size: 12px; color: var(--text-mute); }
 .topbar-right { display: flex; align-items: center; gap: 12px; }
 .clock { font-size: 12px; color: var(--text-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.menu-toggle { display: none; }
-.icon-btn.menu-toggle { display: none; }
+.menu-toggle { display: inline-flex; }
+.icon-btn.menu-toggle { display: inline-flex; }
 
 .content { padding: 16px; flex: 1; }
 /* The view fade used to sit here. It animated every node on the screen at once,
@@ -433,7 +442,10 @@ table.data tbody tr[data-pid]:hover td:first-child { box-shadow: inset 2px 0 0 v
 .cat-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
 .chip { padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--panel); cursor: pointer; font-size: 13px; font-weight: 650; color: var(--text-soft); min-height: 34px; }
 .chip.active { background: var(--brand); border-color: var(--brand); color: #fff; }
-.prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; }
+/* 168px minimum left the counter shelf one column short of five with the rail out
+   of the way. Tile counts at other widths are unchanged: the columns stretch to
+   fill either way, this only decides how many fit. */
+.prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 10px; }
 .prod-card { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; padding: 10px; cursor: pointer; background: var(--panel); box-shadow: var(--shadow); content-visibility: auto; contain-intrinsic-size: auto 200px; transition: border-color var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out); }
 /* The lift is a mouse affordance. On touch, :hover sticks after a tap, so a
    finger would leave tiles raised and shadowed until the next tap elsewhere. */
@@ -768,15 +780,6 @@ table.pdf tr.tot td { font-weight: 800; background: var(--panel-2); border-top: 
 
 /* Responsive */
 @media (max-width: 1080px) {
-  /* A portrait Pad is 800px wide. With the labelled rail standing in the layout it
-     kept 568px for content and hid a third of the Sales History and Credit Book
-     columns behind a horizontal scroll with no hint. Below this width the rail
-     slides out like it already did on a phone, and the tables get the full screen.
-     A landscape Pad (1334px) keeps the rail. */
-  .sidebar { position: fixed; z-index: 60; left: 0; top: 0; transform: translateX(-100%); transition: transform var(--dur-2) var(--ease-out); box-shadow: var(--shadow-lg); }
-  .sidebar.open { transform: none; }
-  .menu-toggle { display: inline-flex; }
-  .icon-btn.menu-toggle { display: inline-flex; }
   .pos { grid-template-columns: 1fr; }
   .cart { position: static; max-height: none; }
   /* Stacked, an uncapped shelf is 1074px tall and pushes the cart 1161px down —
