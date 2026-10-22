@@ -42,10 +42,13 @@
     var keys = []; for (var i = 6; i >= 0; i--) keys.push(isoOffset(-i));
     var dmap = {}; keys.forEach(function (k) { dmap[k] = 0; });
     sales.forEach(function (s) { if (dmap[s.date] != null) dmap[s.date] = U.roundMoney(dmap[s.date] + Number(s.total || 0)); });
-    var maxDay = Math.max.apply(null, keys.map(function (k) { return dmap[k]; }).concat([1]));
+    var maxDay = Math.max.apply(null, keys.map(function (k) { return dmap[k]; }));
+    // The guard is for the bar maths only; showing it would print a best day of
+    // ₹1 on a shop that has not sold anything.
+    var barScale = Math.max(maxDay, 1);
     var weekTotal = U.roundMoney(keys.reduce(function (a, k) { return a + dmap[k]; }, 0));
     var bars = keys.map(function (k, idx) {
-      var hgt = Math.round((dmap[k] / maxDay) * 100);
+      var hgt = Math.round((dmap[k] / barScale) * 100);
       var isToday = idx === keys.length - 1;
       return '<div class="bar-col' + (isToday ? " now" : "") + '"><div class="bar" style="height:' + Math.max(hgt, 2) + '%" data-val="' + U.money(dmap[k]) + '"></div><div class="bar-lbl">' + (isToday ? "Today" : U.fmtDate(k).slice(0, 5)) + "</div></div>";
     }).join("");
